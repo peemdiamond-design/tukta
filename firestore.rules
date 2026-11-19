@@ -3,42 +3,116 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ---------- helpers ----------
     function signedIn() { return request.auth != null; }
+    function isMember() {   // signed in with a real (non-anonymous) account
+      return signedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
     function isAdmin() {
-      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      return isMember() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function incoming() { return request.resource.data; }
+    function isPublished(postId) {
+      let p = /databases/$(database)/documents/posts/$(postId);
+      return exists(p) && get(p).data.status == 'published';
     }
 
-    // Admin registry. Users may only check their own entry; entries are
-    // created manually in the Firebase console (never from the client).
+    // ---------- admins/{uid}: created by hand in the console ----------
     match /admins/{uid} {
       allow get: if signedIn() && request.auth.uid == uid;
       allow list, write: if false;
     }
 
+    // ---------- posts/{slug} ----------
     match /posts/{postId} {
-      // Public can read published posts; admins can read drafts too.
       allow get, list: if resource.data.status == 'published' || isAdmin();
-
       allow create, update: if isAdmin() && validPost();
       allow delete: if isAdmin();
 
       function validPost() {
-        let d = request.resource.data;
-        return d.keys().hasOnly(['title', 'content', 'excerpt', 'tags', 'coverUrl', 'status',
-                                 'authorId', 'createdAt', 'updatedAt', 'publishedAt'])
+        let d = incoming();
+        return d.keys().hasOnly(['title', 'content', 'excerpt', 'tags', 'coverUrl', 'status', 'featured',
+                                 'readingTime', 'authorId', 'createdAt', 'updatedAt', 'publishedAt'])
           && d.title is string && d.title.size() > 0 && d.title.size() <= 160
-          && d.content is string && d.content.size() <= 200000
+          && d.content is string && d.content.size() <= 300000
           && d.excerpt is string && d.excerpt.size() <= 400
           && d.tags is list && d.tags.size() <= 10
           && d.coverUrl is string && d.coverUrl.size() <= 2048
           && d.status in ['draft', 'published']
+          && d.featured is bool
+          && d.readingTime is int
           && d.authorId == request.auth.uid
           && d.updatedAt == request.time
           && postId.matches('^[^/]{1,80}$');
       }
     }
 
-    // Deny everything else by default.
+    // ---------- comments/{id}: Google-signed-in readers, on published posts ----------
+    match /comments/{commentId} {
+      allow get, list: if true;
+      allow create: if isMember()
+        && incoming().keys().hasOnly(['postId', 'uid', 'name', 'photoURL', 'body', 'createdAt'])
+        && incoming().uid == request.auth.uid
+        && incoming().postId is string && isPublished(incoming().postId)
+        && incoming().name is string && incoming().name.size() > 0 && incoming().name.size() <= 80
+        && incoming().photoURL is string && incoming().photoURL.size() <= 500
+        && incoming().body is string && incoming().body.size() > 0 && incoming().body.size() <= 2000
+        && incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+    }
+
+    // ---------- likes/{postId}_{uid}: any signed-in reader (anonymous OK) ----------
+    match /likes/{likeId} {
+      allow get, list: if true;
+      allow create: if signedIn()
+        && incoming().keys().hasOnly(['postId', 'uid', 'createdAt'])
+        && incoming().uid == request.auth.uid
+        && likeId == incoming().postId + '_' + request.auth.uid
+        && isPublished(incoming().postId)
+        && incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
+    }
+
+    // ---------- stats/{postId}: view counter, +1 only ----------
+    match /stats/{postId} {
+      allow get, list: if true;
+      allow create: if incoming().keys().hasOnly(['views']) && incoming().views == 1 && isPublished(postId);
+      allow update: if incoming().keys().hasOnly(['views']) && incoming().views == resource.data.views + 1;
+      allow delete: if isAdmin();
+    }
+
+    // ---------- subscribers/{email}: write-once by anyone, readable by admin ----------
+    match /subscribers/{email} {
+      allow create: if incoming().keys().hasOnly(['email', 'createdAt'])
+        && incoming().email == email
+        && email.size() <= 254
+        && email.matches('^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$')
+        && incoming().createdAt == request.time;
+      allow get, list, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // ---------- site/settings ----------
+    match /site/{docId} {
+      allow get: if true;
+      allow write: if isAdmin() && docId == 'settings';
+    }
+
+    // ---------- images/{id}: compressed WebP data URLs ----------
+    match /images/{imageId} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create: if isAdmin()
+        && incoming().keys().hasOnly(['data', 'width', 'height', 'name', 'uploadedBy', 'createdAt'])
+        && incoming().data is string && incoming().data.size() < 1000000
+        && incoming().uploadedBy == request.auth.uid;
+      allow delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // ---------- everything else is closed ----------
     match /{document=**} {
       allow read, write: if false;
     }

@@ -3,13 +3,19 @@ import {
   onAuthStateChanged,
   signInWithPopup,
   signInWithRedirect,
+  signInAnonymously,
   signOut as fbSignOut,
-} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+  doc,
+  getDoc,
+} from "../lib/sdk.js";
 import { auth, db } from "../lib/firebase.js";
 
-/** @type {{ user: import("firebase/auth").User | null, isAdmin: boolean, ready: boolean }} */
-export const session = { user: null, isAdmin: false, ready: false };
+/**
+ * user        Firebase user (Google or anonymous) or null
+ * isAdmin     true when admins/{uid} exists (rules enforce the same check)
+ * isMember    signed in with Google (can comment)
+ */
+export const session = { user: null, isAdmin: false, isMember: false, ready: false };
 const listeners = new Set();
 
 export function onSession(fn) {
@@ -18,11 +24,10 @@ export function onSession(fn) {
   return () => listeners.delete(fn);
 }
 
-// Admin = a document exists at admins/{uid}. Rules mirror this check server-side.
-async function checkAdmin(uid) {
+async function checkAdmin(user) {
+  if (!user || user.isAnonymous) return false;
   try {
-    const snap = await getDoc(doc(db, "admins", uid));
-    return snap.exists();
+    return (await getDoc(doc(db, "admins", user.uid))).exists();
   } catch {
     return false;
   }
@@ -37,7 +42,8 @@ export function initAuth() {
   return new Promise((resolve) => {
     onAuthStateChanged(auth, async (user) => {
       session.user = user;
-      session.isAdmin = user ? await checkAdmin(user.uid) : false;
+      session.isMember = !!user && !user.isAnonymous;
+      session.isAdmin = await checkAdmin(user);
       const first = !session.ready;
       session.ready = true;
       listeners.forEach((fn) => fn(session));
@@ -58,10 +64,17 @@ export async function signInWithGoogle() {
   }
 }
 
+/** Likes don't need an account: give the reader an anonymous identity on first use. */
+export async function ensureUser() {
+  if (auth.currentUser) return auth.currentUser;
+  const cred = await signInAnonymously(auth);
+  return cred.user;
+}
+
 export const signOut = () => fbSignOut(auth);
 
-export async function waitForSession() {
-  if (session.ready) return session;
+export function waitForSession() {
+  if (session.ready) return Promise.resolve(session);
   return new Promise((resolve) => {
     const off = onSession((s) => { off(); resolve(s); });
   });

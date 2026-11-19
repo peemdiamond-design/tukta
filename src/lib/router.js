@@ -1,32 +1,42 @@
 // Hash router: works on GitHub Pages without server-side rewrites.
+// Routes look like #/p/my-post or #/search?q=คำค้น
 const routes = [];
+let notFound = () => {};
+let before = () => {};
 
 export function route(pattern, handler) {
   const keys = [];
-  const regex = new RegExp(
-    "^" + pattern.replace(/:(\w+)/g, (_, k) => (keys.push(k), "([^/]+)")) + "/?$"
-  );
+  const regex = new RegExp("^" + pattern.replace(/:(\w+)/g, (_, k) => (keys.push(k), "([^/]+)")) + "/?$");
   routes.push({ regex, keys, handler });
 }
 
-export function navigate(path) {
-  if (location.hash.slice(1) === path) resolve();
-  else location.hash = path;
+export const fallback = (handler) => (notFound = handler);
+/** Runs before each route; return false to cancel (e.g. unsaved-changes guard). */
+export const beforeEach = (fn) => (before = fn);
+
+export function currentPath() {
+  const [path, qs = ""] = location.hash.slice(1).split("?");
+  return { path: path || "/", query: new URLSearchParams(qs) };
 }
 
-let notFound = () => {};
-export const fallback = (handler) => (notFound = handler);
+export function navigate(to, { replace = false } = {}) {
+  const target = "#" + to;
+  if (location.hash === target) return resolve();
+  if (replace) history.replaceState(null, "", target), resolve();
+  else location.hash = to;
+}
 
 export async function resolve() {
-  const path = decodeURI(location.hash.slice(1) || "/");
+  const { path, query } = currentPath();
+  if ((await before(path)) === false) return;
   for (const { regex, keys, handler } of routes) {
     const match = path.match(regex);
     if (match) {
       const params = Object.fromEntries(keys.map((k, i) => [k, decodeURIComponent(match[i + 1])]));
-      return handler(params, path);
+      return handler({ ...params, query }, path);
     }
   }
-  return notFound(path);
+  return notFound({ query }, path);
 }
 
 export function startRouter() {

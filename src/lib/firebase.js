@@ -1,10 +1,10 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import {
+  initializeApp,
+  getAuth,
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
-} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+} from "./sdk.js";
 import { firebaseConfig } from "../config/firebase-config.js";
 
 export const isConfigured = !String(firebaseConfig.apiKey).startsWith("REPLACE");

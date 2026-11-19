@@ -1,21 +1,82 @@
+/* ---------- raw palette: olive drab + beige earth tones ---------- */
 :root {
-  /* Palette: olive drab + beige earth tones */
+  --olive-950: #1A1F13;
   --olive-900: #2C331E;
-  --olive-800: #3B4429;   /* spine, headings */
-  --olive-600: #6B7046;   /* khaki green, primary */
-  --olive-300: #A6A57C;   /* moss, rules & muted */
-  --beige-200: #E9E0C8;   /* page background */
-  --beige-100: #F3ECDB;   /* paper surfaces */
-  --bark-600: #6A4E33;    /* links */
+  --olive-800: #3B4429;
+  --olive-700: #4F5734;
+  --olive-600: #6B7046;   /* khaki green */
+  --olive-300: #A6A57C;   /* moss */
+  --beige-300: #D9CEB0;
+  --beige-200: #E9E0C8;
+  --beige-100: #F3ECDB;
+  --bark-600: #6A4E33;
   --bark-700: #4F3925;
-  --danger: #8A3B26;
+  --bark-300: #C9A47A;
+  --rust: #8A3B26;
+  --rust-light: #D88A6C;
+}
 
+/* ---------- semantic tokens (light) ---------- */
+:root, [data-theme="light"] {
+  --bg: var(--beige-200);
+  --surface: var(--beige-100);
+  --surface-2: color-mix(in srgb, var(--olive-300) 22%, var(--beige-100));
   --ink: var(--olive-900);
   --ink-soft: #565A3E;
-  --bg: var(--beige-200);
-  --paper: var(--beige-100);
+  --heading: var(--olive-800);
+  --accent: var(--olive-600);
+  --link: var(--bark-600);
+  --link-hover: var(--bark-700);
   --rule: color-mix(in srgb, var(--olive-300) 70%, transparent);
+  --field-border: var(--olive-300);
+  --btn-bg: var(--olive-800);
+  --btn-fg: var(--beige-100);
+  --btn-bg-hover: var(--olive-900);
+  --chip-bg: color-mix(in srgb, var(--olive-300) 35%, transparent);
+  --chip-fg: var(--olive-800);
+  --spine-bg: var(--olive-800);
+  --spine-edge: var(--olive-900);
+  --spine-fg: var(--beige-100);
+  --spine-muted: var(--olive-300);
+  --code-bg: var(--olive-900);
+  --code-fg: var(--beige-100);
+  --danger: var(--rust);
+  --like: var(--rust);
+  --shadow: 0 6px 20px color-mix(in srgb, var(--olive-900) 30%, transparent);
+  color-scheme: light;
+}
 
+/* ---------- dark: forest at night, beige ink ---------- */
+[data-theme="dark"] {
+  --bg: #1E2316;
+  --surface: #262C1C;
+  --surface-2: #2F3622;
+  --ink: #E6DEC7;
+  --ink-soft: #B9B497;
+  --heading: var(--beige-200);
+  --accent: var(--olive-300);
+  --link: var(--bark-300);
+  --link-hover: #E2C39C;
+  --rule: color-mix(in srgb, var(--olive-300) 28%, transparent);
+  --field-border: #4F5734;
+  --btn-bg: var(--olive-300);
+  --btn-fg: var(--olive-950);
+  --btn-bg-hover: var(--beige-300);
+  --chip-bg: color-mix(in srgb, var(--olive-300) 18%, transparent);
+  --chip-fg: var(--beige-300);
+  --spine-bg: var(--olive-950);
+  --spine-edge: #111409;
+  --spine-fg: var(--beige-200);
+  --spine-muted: var(--olive-300);
+  --code-bg: #12160C;
+  --code-fg: var(--beige-200);
+  --danger: var(--rust-light);
+  --like: var(--rust-light);
+  --shadow: 0 6px 24px rgb(0 0 0 / 0.45);
+  color-scheme: dark;
+}
+
+:root {
   /* Type */
   --font-display: "Chonburi", "Noto Serif Thai", serif;
   --font-body: "Noto Serif Thai", Georgia, serif;
@@ -27,7 +88,7 @@
   --step-1: 1.333rem;
   --step-2: 1.777rem;
   --step-3: 2.369rem;
-  --step-4: clamp(2.4rem, 5vw + 1rem, 3.6rem);
+  --step-4: clamp(2.2rem, 5vw + 1rem, 3.6rem);
 
   --measure: 36em;
   --spine-w: 7.5rem;

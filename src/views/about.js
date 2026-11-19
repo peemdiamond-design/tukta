@@ -1,14 +1,34 @@
-import { setTitle } from "../lib/dom.js";
+import { html, raw, safeUrl } from "../lib/dom.js";
+import { setMeta } from "../lib/seo.js";
+import { renderMarkdown } from "../lib/markdown.js";
+import { getSettings, hydrateImages } from "../services/site.js";
+import { coverImg, subscribeBox, bindSubscribe, loading } from "./components.js";
 
-export function aboutView(el) {
-  setTitle("เกี่ยวกับ");
-  el.innerHTML = `
-    <article class="article">
-      <h1>เกี่ยวกับสมุดเล่มนี้</h1>
-      <div class="prose">
-        <p>สวัสดี ฉันชื่อตุ๊กตา ที่นี่คือสมุดบันทึกออนไลน์ที่ฉันใช้จดเรื่องเล็ก ๆ ในแต่ละวัน
-        ทั้งหนังสือที่อ่าน ร้านกาแฟที่ชอบ และความคิดที่อยากเก็บไว้</p>
-        <p>ทุกบันทึกเขียนเอง ไม่มีโฆษณา อ่านได้ตามสบาย</p>
-      </div>
+const SOCIAL = [
+  ["facebook", "Facebook", (v) => (/^https?:/.test(v) ? v : `https://facebook.com/${v}`)],
+  ["instagram", "Instagram", (v) => (/^https?:/.test(v) ? v : `https://instagram.com/${v.replace(/^@/, "")}`)],
+  ["x", "X", (v) => (/^https?:/.test(v) ? v : `https://x.com/${v.replace(/^@/, "")}`)],
+  ["line", "LINE", (v) => (/^https?:/.test(v) ? v : `https://line.me/ti/p/~${v.replace(/^@/, "")}`)],
+  ["email", "อีเมล", (v) => `mailto:${v}`],
+];
+
+export async function aboutView(el) {
+  el.innerHTML = loading();
+  const s = await getSettings();
+  setMeta({ title: "เกี่ยวกับ", description: s.description, path: "/about" });
+  const links = SOCIAL.filter(([k]) => s.socials?.[k]).map(([k, label, toUrl]) => {
+    const href = k === "email" ? toUrl(s.socials[k]) : safeUrl(toUrl(s.socials[k]));
+    return raw(html`<li><a class="chip" href="${href}" ${k === "email" ? "" : raw('target="_blank" rel="me noopener noreferrer"')}>${label}</a></li>`);
+  });
+
+  el.innerHTML = html`
+    <article class="article about">
+      ${s.avatarUrl ? raw(coverImg(s.avatarUrl, "about__avatar")) : ""}
+      <h1>เกี่ยวกับ${s.name}</h1>
+      <div class="prose">${raw(renderMarkdown(s.about))}</div>
+      ${links.length ? raw(html`<ul class="social">${links}</ul>`) : ""}
+      ${raw(subscribeBox())}
     </article>`;
+  hydrateImages(el);
+  bindSubscribe(el);
 }
