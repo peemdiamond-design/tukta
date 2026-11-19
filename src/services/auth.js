@@ -2,6 +2,7 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   signInWithPopup,
+  signInWithRedirect,
   signOut as fbSignOut,
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
@@ -48,7 +49,13 @@ export function initAuth() {
 export async function signInWithGoogle() {
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
-  return signInWithPopup(auth, provider);
+  try {
+    return await signInWithPopup(auth, provider);
+  } catch (err) {
+    // Some browsers block popups; fall back to a full-page redirect.
+    if (err.code === "auth/popup-blocked") return signInWithRedirect(auth, provider);
+    throw err;
+  }
 }
 
 export const signOut = () => fbSignOut(auth);
