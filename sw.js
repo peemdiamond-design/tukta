@@ -1,10 +1,10 @@
 // Offline support. Network-first for the app's own files (so deploys show up
 // immediately), cache fallback when offline. Firebase traffic is never cached here;
 // Firestore keeps its own offline cache in IndexedDB.
-const CACHE = "tukta-v2";
+const CACHE = "tukta-v3";
 const SHELL = [
   "./", "./index.html", "./manifest.webmanifest", "./assets/img/favicon.svg",
-  "./assets/css/tokens.css?v=2", "./assets/css/base.css?v=2", "./assets/css/layout.css?v=2", "./assets/css/components.css?v=2",
+  "./assets/css/tokens.css?v=3", "./assets/css/base.css?v=3", "./assets/css/layout.css?v=3", "./assets/css/components.css?v=3",
   "./src/main.js",
 ];
 
