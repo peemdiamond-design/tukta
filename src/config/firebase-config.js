@@ -1,12 +1,12 @@
 // Firebase web config. These values are public by design: access is
 // enforced by Firestore security rules (see firestore.rules), not by secrecy.
 export const firebaseConfig = {
-  apiKey: "AIzaSyDw-UZYEA6nRjy_V_dYz9hCZaAWWDiU4vc",
-  authDomain: "tukta-blog.firebaseapp.com",
-  projectId: "tukta-blog",
-  storageBucket: "tukta-blog.firebasestorage.app",
-  messagingSenderId: "702021113420",
-  appId: "1:702021113420:web:6903a81e9a12915b6946e9",
+  apiKey: "AIzaSyCrNb7onQZD1VeW8KfZqdSBiYtLZ7GBvWI",
+  authDomain: "tukta-blog-81d9d.firebaseapp.com",
+  projectId: "tukta-blog-81d9d",
+  storageBucket: "tukta-blog-81d9d.firebasestorage.app",
+  messagingSenderId: "970738567866",
+  appId: "1:970738567866:web:ee1a5fd0e78cc56238d083",
 };
 
 // Defaults; the admin can override name/tagline/description/about/socials in Site settings.

@@ -42,5 +42,5 @@ Open http://localhost:5510 (add `localhost` to Firebase Auth authorized domains 
 ## Deploying rules
 
 ```bash
-npx firebase-tools deploy --only firestore:rules --project <project-id>
+npx firebase-tools deploy --only firestore:rules --project tukta-blog-81d9d
 ```
