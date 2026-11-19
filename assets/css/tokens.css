@@ -1,0 +1,41 @@
+:root {
+  /* Palette: olive drab + beige earth tones */
+  --olive-900: #2C331E;
+  --olive-800: #3B4429;   /* spine, headings */
+  --olive-600: #6B7046;   /* khaki green, primary */
+  --olive-300: #A6A57C;   /* moss, rules & muted */
+  --beige-200: #E9E0C8;   /* page background */
+  --beige-100: #F3ECDB;   /* paper surfaces */
+  --bark-600: #6A4E33;    /* links */
+  --bark-700: #4F3925;
+  --danger: #8A3B26;
+
+  --ink: var(--olive-900);
+  --ink-soft: #565A3E;
+  --bg: var(--beige-200);
+  --paper: var(--beige-100);
+  --rule: color-mix(in srgb, var(--olive-300) 70%, transparent);
+
+  /* Type */
+  --font-display: "Chonburi", "Noto Serif Thai", serif;
+  --font-body: "Noto Serif Thai", Georgia, serif;
+  --font-ui: "IBM Plex Sans Thai Looped", system-ui, sans-serif;
+
+  /* Modular scale (perfect fourth, 1.333) */
+  --step--1: 0.85rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.333rem;
+  --step-2: 1.777rem;
+  --step-3: 2.369rem;
+  --step-4: clamp(2.4rem, 5vw + 1rem, 3.6rem);
+
+  --measure: 36em;
+  --spine-w: 7.5rem;
+  --radius-s: 3px;
+  --radius-m: 10px;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.5rem;
+  --space-5: 4rem;
+}

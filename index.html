@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ตุ๊กตา — สมุดบันทึก</title>
+  <meta name="description" content="บล็อกส่วนตัวของตุ๊กตา บันทึกเรื่องเล็ก ๆ ในแต่ละวัน">
+  <meta name="theme-color" content="#3B4429">
+  <link rel="canonical" href="https://tukta.peemcn25.dev/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ตุ๊กตา — สมุดบันทึก">
+  <meta property="og:description" content="บล็อกส่วนตัวของตุ๊กตา บันทึกเรื่องเล็ก ๆ ในแต่ละวัน">
+  <meta property="og:url" content="https://tukta.peemcn25.dev/">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chonburi&family=IBM+Plex+Sans+Thai+Looped:wght@400;500;600&family=Noto+Serif+Thai:wght@400;600&display=swap">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="modulepreload" href="src/main.js">
+</head>
+<body>
+  <a class="skip-link" href="#main">ข้ามไปที่เนื้อหา</a>
+  <div class="shell">
+    <header class="spine" aria-label="ส่วนหัวของเว็บไซต์">
+      <a class="spine__title" href="#/" aria-label="ตุ๊กตา หน้าแรก">ตุ๊กตา</a>
+      <nav class="spine__nav" aria-label="เมนูหลัก">
+        <a href="#/" data-nav="home">บันทึก</a>
+        <a href="#/about" data-nav="about">เกี่ยวกับ</a>
+        <span id="auth-slot"></span>
+      </nav>
+    </header>
+    <main id="main" class="page" tabindex="-1" aria-live="polite">
+      <p class="state">กำลังเปิดสมุด…</p>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <noscript><p class="state">เว็บไซต์นี้ต้องเปิดใช้ JavaScript</p></noscript>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

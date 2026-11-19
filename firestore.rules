@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Admin registry. Users may only check their own entry; entries are
+    // created manually in the Firebase console (never from the client).
+    match /admins/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+
+    match /posts/{postId} {
+      // Public can read published posts; admins can read drafts too.
+      allow get, list: if resource.data.status == 'published' || isAdmin();
+
+      allow create, update: if isAdmin() && validPost();
+      allow delete: if isAdmin();
+
+      function validPost() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['title', 'content', 'excerpt', 'tags', 'coverUrl', 'status',
+                                 'authorId', 'createdAt', 'updatedAt', 'publishedAt'])
+          && d.title is string && d.title.size() > 0 && d.title.size() <= 160
+          && d.content is string && d.content.size() <= 200000
+          && d.excerpt is string && d.excerpt.size() <= 400
+          && d.tags is list && d.tags.size() <= 10
+          && d.coverUrl is string && d.coverUrl.size() <= 2048
+          && d.status in ['draft', 'published']
+          && d.authorId == request.auth.uid
+          && d.updatedAt == request.time
+          && postId.matches('^[^/]{1,80}$');
+      }
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
