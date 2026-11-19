@@ -17,7 +17,7 @@ src/
   views/                home, post, about, login, admin dashboard + editor
 firestore.rules         security rules (source of truth for access control)
 firebase.json           for `firebase deploy --only firestore`
-.github/workflows/      Pages deploy on push to main
+(GitHub Pages serves the main branch root directly)
 ```
 
 ## Data model
